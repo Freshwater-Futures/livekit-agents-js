@@ -1,5 +1,5 @@
 {
-  "name": "@livekit/agents-plugin-openai",
+  "name": "@freshwaterfutures/livekit-agents-plugin-openai",
   "version": "0.9.1",
   "description": "OpenAI plugin for LiveKit Node Agents - Quick Fork for semantic_vad",
   "main": "dist/index.js",
