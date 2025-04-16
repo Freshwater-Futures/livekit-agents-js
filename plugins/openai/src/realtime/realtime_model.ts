@@ -1197,6 +1197,7 @@ export class RealtimeSession extends multimodal.RealtimeSession {
   #handleResponseAudioTranscriptDone(event: api_proto.ResponseAudioTranscriptDoneEvent): void {
     const content = this.#getContent(event);
     content.textStream.close();
+    this.emit('response_audio_transcript_done', event);
   }
 
   #handleResponseAudioDelta(event: api_proto.ResponseAudioDeltaEvent): void {
