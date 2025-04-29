@@ -864,7 +864,13 @@ export class RealtimeSession extends multimodal.RealtimeSession {
 
       sendTask();
 
-      this.#ws.onclose = () => {
+      this.#ws.onclose = (event) => {
+        console.log('onclose', event);
+        const { code, reason, type, wasClean } = event;
+        console.log('code', code);
+        console.log('reason', reason);
+        console.log('type', type);
+        console.log('wasClean', wasClean);
         if (this.#expiresAt && Date.now() >= this.#expiresAt * 1000) {
           this.#closing = true;
         }
@@ -933,7 +939,11 @@ export class RealtimeSession extends multimodal.RealtimeSession {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  #handleConversationItemCreated(event: api_proto.ConversationItemCreatedEvent): void {}
+  #handleConversationItemCreated(event: api_proto.ConversationItemCreatedEvent): void {
+    this.emit('conversation_item_created', {
+      event: event,
+    });
+  }
 
   #handleConversationItemInputAudioTranscriptionCompleted(
     event: api_proto.ConversationItemInputAudioTranscriptionCompletedEvent,
@@ -1230,5 +1240,8 @@ export class RealtimeSession extends multimodal.RealtimeSession {
   ): void {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  #handleRateLimitsUpdated(event: api_proto.RateLimitsUpdatedEvent): void {}
+  #handleRateLimitsUpdated(event: api_proto.RateLimitsUpdatedEvent): void {
+    console.log('rate limits updated', event);
+    this.emit('rate_limits_updated', event);
+  }
 }
