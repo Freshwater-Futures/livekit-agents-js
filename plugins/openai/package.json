@@ -1,6 +1,6 @@
 {
   "name": "@freshwaterfutures/livekit-agents-plugin-openai",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "OpenAI plugin for LiveKit Node Agents - Quick Fork for semantic_vad + transcription delta + on close info + rate limits updated",
   "main": "dist/index.js",
   "require": "dist/index.cjs",
