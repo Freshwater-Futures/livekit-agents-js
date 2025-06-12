@@ -16,6 +16,14 @@ import { once } from 'node:events';
 import { WebSocket } from 'ws';
 import * as api_proto from './api_proto.js';
 
+export interface TracingConfig {
+  group_id?: string;
+  metadata?: object;
+  workflow_name?: string;
+}
+
+export type Tracing = 'auto' | TracingConfig | null;
+
 interface ModelOptions {
   modalities: ['text', 'audio'] | ['text'];
   instructions: string;
@@ -32,6 +40,7 @@ interface ModelOptions {
   isAzure: boolean;
   entraToken?: string;
   apiVersion?: string;
+  tracing: Tracing;
 }
 
 export interface RealtimeResponse {
@@ -328,6 +337,7 @@ export class RealtimeModel extends multimodal.RealtimeModel {
     turnDetection = { type: 'server_vad' },
     temperature = 0.8,
     maxResponseOutputTokens = Infinity,
+    tracing = null,
   }: {
     baseURL: string;
     azureDeployment: string;
@@ -343,6 +353,7 @@ export class RealtimeModel extends multimodal.RealtimeModel {
     turnDetection?: api_proto.TurnDetectionType;
     temperature?: number;
     maxResponseOutputTokens?: number;
+    tracing?: Tracing;
   }) {
     return new RealtimeModel({
       isAzure: true,
@@ -360,6 +371,7 @@ export class RealtimeModel extends multimodal.RealtimeModel {
       turnDetection,
       temperature,
       maxResponseOutputTokens,
+      tracing,
     });
   }
 
@@ -380,6 +392,7 @@ export class RealtimeModel extends multimodal.RealtimeModel {
     isAzure = false,
     apiVersion = undefined,
     entraToken = undefined,
+    tracing = null,
   }: {
     modalities?: ['text', 'audio'] | ['text'];
     instructions?: string;
@@ -396,6 +409,7 @@ export class RealtimeModel extends multimodal.RealtimeModel {
     isAzure?: boolean;
     apiVersion?: string;
     entraToken?: string;
+    tracing?: Tracing;
   }) {
     super();
 
@@ -421,6 +435,7 @@ export class RealtimeModel extends multimodal.RealtimeModel {
       isAzure,
       apiVersion,
       entraToken,
+      tracing,
     };
   }
 
@@ -469,12 +484,14 @@ export class RealtimeModel extends multimodal.RealtimeModel {
       isAzure: this.#defaultOpts.isAzure,
       apiVersion: this.#defaultOpts.apiVersion,
       entraToken: this.#defaultOpts.entraToken,
+      tracing: this.#defaultOpts.tracing,
     };
 
     const newSession = new RealtimeSession(opts, {
       chatCtx: chatCtx || new llm.ChatContext(),
       fncCtx,
     });
+    console.log('** newSession', newSession);
     this.#sessions.push(newSession);
     return newSession;
   }
@@ -520,6 +537,7 @@ export class RealtimeSession extends multimodal.RealtimeSession {
       temperature: this.#opts.temperature,
       maxResponseOutputTokens: this.#opts.maxResponseOutputTokens,
       toolChoice: 'auto',
+      tracing: this.#opts.tracing,
     });
   }
 
@@ -600,6 +618,7 @@ export class RealtimeSession extends multimodal.RealtimeSession {
     maxResponseOutputTokens = this.#opts.maxResponseOutputTokens,
     toolChoice = 'auto',
     selectedTools = Object.keys(this.#fncCtx || {}),
+    tracing = this.#opts.tracing,
   }: {
     modalities: ['text', 'audio'] | ['text'];
     instructions?: string;
@@ -612,6 +631,7 @@ export class RealtimeSession extends multimodal.RealtimeSession {
     maxResponseOutputTokens?: number;
     toolChoice?: api_proto.ToolChoice;
     selectedTools?: string[];
+    tracing?: Tracing;
   }) {
     this.#opts = {
       modalities,
@@ -629,6 +649,7 @@ export class RealtimeSession extends multimodal.RealtimeSession {
       isAzure: this.#opts.isAzure,
       apiVersion: this.#opts.apiVersion,
       entraToken: this.#opts.entraToken,
+      tracing: this.#opts.tracing,
     };
 
     const tools = this.#fncCtx
@@ -663,6 +684,7 @@ export class RealtimeSession extends multimodal.RealtimeSession {
             : this.#opts.maxResponseOutputTokens,
         tools,
         tool_choice: toolChoice,
+        tracing: tracing,
       },
     };
 

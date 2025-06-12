@@ -1,3 +1,5 @@
+import type { Tracing } from './realtime_model.js';
+
 // SPDX-FileCopyrightText: 2024 LiveKit, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -266,6 +268,7 @@ export interface SessionUpdateEvent extends BaseClientEvent {
     tool_choice: ToolChoice;
     temperature: number;
     max_response_output_tokens?: number | 'inf';
+    tracing?: Tracing;
   }>;
 }
 
